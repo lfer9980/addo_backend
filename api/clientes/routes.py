@@ -55,7 +55,7 @@ async def delete_cliente(rfc: str,
 
 
 @clientes_router.get('/get/all/{page}')
-async def get_all(page: int,
+async def get_all_clientes(page: int,
                   db: Session = Depends(create_session),
                   current_session: Depends = Depends(Manager)) -> List[ClienteSchema]:
 
@@ -65,7 +65,7 @@ async def get_all(page: int,
 
 
 @clientes_router.get('/get/{rfc}')
-async def get_one(rfc: str,
+async def get_one_clientes(rfc: str,
                   db: Session = Depends(create_session),
                   current_session: Depends = Depends(Manager)) -> ClienteSchema:
     

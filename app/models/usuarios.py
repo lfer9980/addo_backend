@@ -1,7 +1,8 @@
+import pytz
 import sys
-import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import relationship
-from sqlalchemy import (Column, String, Enum, DateTime)
+from sqlalchemy import (Column, String, Enum, DateTime, ForeignKey)
 
 from app.usuarios.enums import *
 from core.db import BaseTable
@@ -14,16 +15,19 @@ class UsuarioModel(BaseTable):
                       unique=True,
                       nullable=False,
                       )
-
-    password = Column(String,
+    
+    nombres = Column(String,
+                      nullable=False)
+    
+    apellidos = Column(String,
                       nullable=False)
 
     posicion = Column(String,
                       nullable=True)
 
-    user_type = Column(Enum(UserTypeEnum),
-                       default=UserTypeEnum.Colaborador,
-                       )
+    tipo_usuario = Column(Enum(UserTypeEnum),
+                          default=UserTypeEnum.Colaborador,
+                          )
 
     avatar = Column(String,
                     unique=False,
@@ -31,14 +35,15 @@ class UsuarioModel(BaseTable):
                     default='',
                     )
 
-    created_at = Column(DateTime,
-                        default=datetime.datetime.now(datetime.timezone.utc),
+    password = Column(String,
+                      nullable=False)
+    
+    creado = Column(DateTime,
+                    default=datetime.now(pytz.timezone('Etc/GMT+6')),
                         )
 
-    """     
-    asignaciones = relationship("AsignacionModel",
-                                back_populates="colaborador")
+    asignacion_id = Column(String, ForeignKey("asignaciones.id"))
 
-    puntaje = relationship("PuntajeModel",
-                           back_populates="colaborador")
-    """
+    asignaciones = relationship("AsignacionModel", back_populates="usuario")
+
+    puntaje = relationship("PuntajeModel", back_populates="usuario")

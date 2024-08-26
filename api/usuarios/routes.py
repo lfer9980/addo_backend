@@ -25,56 +25,55 @@ async def create_user(user: CreateUserSchema,
     return await UserCRUD().create(user=user, db=db)
 
 
-@user_router.put('/update/{user_id}')
+@user_router.put('/update/{username}')
 @can_access(not_allowed=[UserTypeEnum.Colaborador])
-async def update_user(user_id: str,
+async def update_user(username: str,
                       user_data: UpdateUserSchema,
                       current_session: Depends = Depends(Manager),
                       db: Session = Depends(create_session)):
 
-    user_session_id: str = current_session.get('id')
+    user_session_username: str = current_session.get('username')
 
     UpdateUserSchema.model_validate(user_data)
-    print("validado")
 
     return await UserCRUD().update_user(
         db=db,
-        user_update_id=user_id,
-        user_updating_id=user_session_id,
+        user_update_username=username,
+        user_updating_username=user_session_username,
         user=user_data
     )
 
 
-@user_router.delete('/delete/{user_id}')
+@user_router.delete('/delete/{username}')
 @can_access(not_allowed=[UserTypeEnum.Colaborador, UserTypeEnum.Supervisor])
-async def delete_user(user_id: str,
+async def delete_user(username: str,
                       current_session: Depends = Depends(Manager),
                       db: Session = Depends(create_session)):
 
     await UserCRUD().delete(
         db=db,
-        user_id=user_id
+        username=username
     )
 
-    return {"message": f"Usuario {user_id} eliminado correctamente"}
+    return {"message": f"Usuario {username} eliminado correctamente"}
 
 
 @user_router.get('/get/all/{page}')
 @can_access(not_allowed=[UserTypeEnum.Colaborador])
-async def get_all(page: int,
+async def get_all_users(page: int,
                   db: Session = Depends(create_session),
                   current_session: Depends = Depends(Manager)) -> List[UserSchema]:
 
     return await UserCRUD().get_all(db=db,
                                     page=page,
-                                    page_size=10)
+                                    page_size=50)
 
 
-@user_router.get('/get/{user_id}')
+@user_router.get('/get/{username}')
 @can_access(not_allowed=[UserTypeEnum.Colaborador])
-async def get_user(user_id: str,
+async def get_user_by_username(username: str,
                    db: Session = Depends(create_session),
                    current_session: Depends = Depends(Manager)) -> UserSchema:
 
     return await UserCRUD().get_one(db=db,
-                                    user_id=user_id)
+                                    username=username)

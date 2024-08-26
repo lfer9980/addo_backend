@@ -8,15 +8,11 @@ from core.db import BaseTable
 class TareaModel(BaseTable):
     __tablename__ = 'tareas'
 
-    cliente_id = Column(String,
-                        ForeignKey("clientes.id"))
-
     tarea = Column(String,
                     nullable=False)
 
     descripcion = Column(String,
-                         default='',
-                         nullable=False)
+                         default='',)
 
     departamento = Column(Enum(DepartamentoEnum),
                        default='Categoria no asignada',
@@ -40,3 +36,11 @@ class TareaModel(BaseTable):
     
     tipo = Column(Enum(TipoTareaEnum),
                   nullable=False)
+    
+    cliente_rfc = Column(String, ForeignKey("clientes.rfc"))
+    
+    asignacion_id = Column(String, ForeignKey("asignaciones.id"))
+    
+    cliente = relationship("ClienteModel", back_populates="tareas")
+    
+    asignacion = relationship("AsignacionModel", back_populates="tarea", uselist=False)

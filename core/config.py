@@ -12,6 +12,8 @@ class Config(BaseSettings):
     DB_URL: str
     ADMIN_USERNAME: str
     ADMIN_PASSWORD: str
+    ADMIN_NOMBRES: str
+    ADMIN_APELLIDOS: str
     DB_URL: str
     model_config = SettingsConfigDict(env_file=DOTENV)
 

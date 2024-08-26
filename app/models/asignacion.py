@@ -1,25 +1,28 @@
 from datetime import datetime
 from sqlalchemy.orm import relationship
-from sqlalchemy import (Column, String, ForeignKey, Boolean, DateTime)
+from sqlalchemy import (Column, String, ForeignKey, Enum, Boolean, DateTime)
 
 from core.db import BaseTable
+from app.asignaciones.enums import *
 
 
 class AsignacionModel(BaseTable):
     __tablename__ = 'asignaciones'
 
-    tarea_id = Column(String,
-                      ForeignKey("tareas.id"),
-                      primary_key=True,)
-
-    usuario_id = Column(String,
-                        ForeignKey("usuarios.id"),
-                        primary_key=True)
-
-    created_at = Column(DateTime,
-                        default=datetime.utcnow())
-
-    finished_at = Column(DateTime)
-
+    estado = Column(Enum(EstadoAsignacionEnum),
+                        default=EstadoAsignacionEnum.Progreso)
+   
     completado = Column(Boolean,
                         default=False)
+    
+    creado = Column(DateTime,
+                    default=datetime.now())
+    
+    ultimo_cambio = Column(DateTime,
+                           default=datetime.now())
+
+    terminado = Column(DateTime)
+    
+    tarea = relationship("TareaModel", back_populates="asignacion")
+    
+    usuario = relationship("UsuarioModel", back_populates="asignaciones", uselist=False)

@@ -15,15 +15,15 @@ def can_access(not_allowed: list = ()):
                     detail="No session has been established",
                 )
 
-            user_type = session.get('user_type', None)
+            tipo_usuario = session.get('tipo_usuario', None)
 
-            if user_type is None:
+            if tipo_usuario is None:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail='No user type found',
                 )
 
-            elif user_type and user_type in not_allowed:
+            elif tipo_usuario and tipo_usuario in not_allowed:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail='Not enough permissions',

@@ -13,7 +13,7 @@ from core import (VERSION,
 
 from core.config import config
 from core.response import CustomResponse
-from app.usuarios.default_user import create_admin_user
+from app.usuarios.default_user import create_admin_user, create_default_user
 
 
 def init_cors(app: FastAPI) -> None:
@@ -77,6 +77,7 @@ def init_super_user(app: FastAPI) -> None:
     @app.on_event('startup') # noqa
     async def startup() -> None:
         await create_admin_user()
+        await create_default_user()
 
 
 def create_app() -> FastAPI:

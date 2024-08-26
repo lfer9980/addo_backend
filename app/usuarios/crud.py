@@ -14,7 +14,7 @@ class UserCRUD(BaseCRUD):
     @staticmethod
     async def _has_admin(db: Session) -> bool:
         user = db.query(UsuarioModel).filter(
-            UserTypeEnum.SupeAdmin == UsuarioModel.user_type
+            UserTypeEnum.SupeAdmin == UsuarioModel.tipo_usuario
         ).first()
 
         if user is None:
@@ -33,7 +33,7 @@ class UserCRUD(BaseCRUD):
             raise HTTPException(status_code=409,
                                 detail="Username already exists")
 
-        if await cls._has_admin(db=db) and user.user_type == UserTypeEnum.SupeAdmin:
+        if await cls._has_admin(db=db) and user.tipo_usuario == UserTypeEnum.SupeAdmin:
             raise HTTPException(status_code=409,
                                 detail="Admin User already exists")
 
@@ -51,20 +51,22 @@ class UserCRUD(BaseCRUD):
         return UserSchema.model_validate(db_user)
 
     @classmethod
-    async def update_user(cls, db: Session, user_update_id: str,
-                          user_updating_id: str,
+    async def update_user(cls, db: Session, user_update_username: str,
+                          user_updating_username: str,
                           user: UpdateUserSchema) -> UserSchema:
 
         old_user: Query = await cls._filter_by(db=db,
                                                table=UsuarioModel,
-                                               key='id',
-                                               data=user_update_id)
+                                               key='username',
+                                               data=user_update_username)
+        
         old_user: UsuarioModel | None = old_user.first()
 
         user_updating: Query = await cls._filter_by(db=db,
                                                     table=UsuarioModel,
-                                                    key='id',
-                                                    data=user_updating_id)
+                                                    key='username',
+                                                    data=user_updating_username)
+        
         user_updating: UsuarioModel | None = user_updating.first()
 
         if old_user is None:
@@ -75,9 +77,9 @@ class UserCRUD(BaseCRUD):
             raise HTTPException(status_code=404,
                                 detail="User not found")
 
-        if user_updating.user_type == UserTypeEnum.Supervisor:
+        if user_updating.tipo_usuario == UserTypeEnum.Supervisor:
 
-            if user.user_type in [UserTypeEnum.Supervisor, UserTypeEnum.SupeAdmin]:
+            if user.tipo_usuario in [UserTypeEnum.Supervisor, UserTypeEnum.SupeAdmin]:
                 raise HTTPException(status_code=403,
                                     detail="User not allowed to modify this role")
 
@@ -97,12 +99,13 @@ class UserCRUD(BaseCRUD):
         return UserSchema.model_validate(old_user)
 
     @classmethod
-    async def update_me(cls, db: Session, user_id: str, user: UpdateOwnUserSchema) -> UserSchema:
+    async def update_me(cls, db: Session, username: str, user: UpdateOwnUserSchema) -> UserSchema:
 
         old_user: Query = await cls._filter_by(db=db,
                                                table=UsuarioModel,
-                                               key='id',
-                                               data=user_id)
+                                               key='username',
+                                               data=username)
+        
         old_user: None | UsuarioModel = old_user.first()
 
         if old_user is None:
@@ -129,20 +132,26 @@ class UserCRUD(BaseCRUD):
         return UserSchema.model_validate(old_user)
 
     @classmethod
-    async def delete(cls, db: Session, user_id: str) -> None:
+    async def delete(cls, db: Session, username: str) -> None:
 
         user: Query = await cls._filter_by(db=db,
                                            table=UsuarioModel,
-                                           key='id',
-                                           data=user_id)
+                                           key='username',
+                                           data=username)
+        
         user: UsuarioModel | None = user.first()
+        
         if user is None:
             raise HTTPException(status_code=404,
                                 detail="User not found")
 
-        if user.user_type is UserTypeEnum.SupeAdmin:
+        if user.tipo_usuario is UserTypeEnum.SupeAdmin:
             raise HTTPException(status_code=403,
                                 detail="No puedes eliminar un usuario administrador")
+        
+        if user.username == "default":
+            raise HTTPException(status_code=403,
+                    detail="No puedes eliminar el usuario default") 
 
         await cls._delete(db=db,
                           data=user)
@@ -150,16 +159,25 @@ class UserCRUD(BaseCRUD):
     @classmethod
     async def get_by_username(cls, db: Session, username: str):
         user: Query = await cls._filter_by(db=db, key='username', data=username, table=UsuarioModel)
+        
         user: UsuarioModel | None = user.first()
 
         return user.to_dict() if user else None
 
     @classmethod
-    async def get_one(cls, db: Session, user_id: str) -> UserSchema:
+    async def get_one(cls, db: Session, username: str) -> UserSchema:
 
-        user = await cls._get_one(db=db,
-                                  table=UsuarioModel,
-                                  this_id=user_id)
+        user: Query = await cls._filter_by(db=db,
+                                            table=UsuarioModel,
+                                            key='username',
+                                            data=username)
+        user = user.first()
+
+        if user is None:
+            raise HTTPException(
+                status_code=400,
+                detail='usuario no encontrado'
+            )
 
         return UserSchema.model_validate(user)
 
@@ -169,6 +187,10 @@ class UserCRUD(BaseCRUD):
         usuarios = await cls._get_all(db=db,
                                       page=page,
                                       page_size=page_size,
-                                      table=UsuarioModel,)
+                                      table=UsuarioModel)
+        
+        usuarios_filter = filter(lambda x: x.username != "superuser" and x.username != "default", usuarios)
+        usuarios_filter = list(usuarios_filter)
+        print(usuarios_filter)
 
-        return [UserSchema.model_validate(usuario) for usuario in usuarios]
+        return [UserSchema.model_validate(usuario) for usuario in usuarios_filter]

@@ -1,5 +1,4 @@
-from sqlalchemy.orm import relationship
-from sqlalchemy import (Column, String, Enum, Boolean, SmallInteger, ForeignKey)
+from sqlalchemy import (Column, String, Enum, Boolean, SmallInteger)
 
 from app.tareas.enums import *
 from core.db import BaseTable

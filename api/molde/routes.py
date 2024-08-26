@@ -40,7 +40,7 @@ async def update_molde(molde_id: str,
 
 @molde_router.delete('/delete/{molde_id}')
 @can_access(not_allowed=[UserTypeEnum.Colaborador])
-async def delete_cliente(molde_id: str,
+async def delete_molde(molde_id: str,
                          db: Session = Depends(create_session),
                          current_session: Depends = Depends(Manager)):
 
@@ -52,7 +52,7 @@ async def delete_cliente(molde_id: str,
 
 @molde_router.get('/get/all/{page}')
 @can_access(not_allowed=[UserTypeEnum.Colaborador])
-async def get_all(page: int,
+async def get_all_molde(page: int,
                   db: Session = Depends(create_session),
                   current_session: Depends = Depends(Manager)):
 
@@ -63,7 +63,7 @@ async def get_all(page: int,
 
 @molde_router.get('/get/{molde_id}')
 @can_access(not_allowed=[UserTypeEnum.Colaborador])
-async def get_by_id(molde_id: str,
+async def get_molde_by_id(molde_id: str,
                     db: Session = Depends(create_session),
                     current_session: Depends = Depends(Manager)) -> TareaEstandarSchema:
 

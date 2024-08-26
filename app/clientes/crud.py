@@ -8,6 +8,7 @@ from app.models.clientes import ClienteModel
 
 
 class ClienteCRUD(BaseCRUD):
+    current_table = ClienteModel
 
     @classmethod
     async def _validate_unique(cls, db: Session, cliente) -> None:
@@ -107,3 +108,18 @@ class ClienteCRUD(BaseCRUD):
             )
 
         return ClienteSchema.model_validate(cliente)
+    
+    @classmethod
+    async def get_one_by_id(cls, db: Session, cliente_id: str) -> ClienteById:
+        
+        cliente = await cls._get_one(db=db, 
+                               table=cls.current_table,
+                               this_id=cliente_id)
+
+        if cliente is None:
+            raise HTTPException(
+                status_code=400,
+                detail='Cliente no encontrado'
+            )
+
+        return ClienteById.model_validate(cliente)

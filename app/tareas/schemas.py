@@ -1,12 +1,15 @@
+import pytz
 from datetime import datetime
 
 from pydantic import Field
 from uuid import uuid4, UUID
 from typing import Optional
+from datetime import datetime, timezone
 
 from app.tareas.enums import *
+from app.asignaciones.enums import *
 from core.schemas import BaseSchema
-
+from app.asignaciones.enums import *
 
 class BaseTareaSchema(BaseSchema):
     id: str = Field(default_factory=lambda: str(uuid4()))
@@ -15,8 +18,8 @@ class BaseTareaSchema(BaseSchema):
     departamento: DepartamentoEnum
     recurrencia: RecurrenciaEnum
     complejidad: int
-    enviar: bool = True
-    pagar: bool = False
+    enviar: bool
+    pagar: bool
     tipo: TipoTareaEnum
     
     model_config = {
@@ -30,7 +33,8 @@ class BaseTareaSchema(BaseSchema):
                     "complejidad": 1,
                     "enviar": True,
                     "pagar": False,
-                    "tipo": TipoTareaEnum.Recurrente
+                    "tipo": TipoTareaEnum.Recurrente,
+                    "username": "default",
                 }
             ]
         }
@@ -38,34 +42,67 @@ class BaseTareaSchema(BaseSchema):
 
 
 class TareaSchema(BaseTareaSchema):
-    ...
+    cliente_rfc: str
 
 class CreateTareaSchema(BaseTareaSchema):
     id: str = Field(default_factory=lambda: str(uuid4()))
-    usuario_id: str
+    username: str
 
-
+class TareaGetUserSchema(BaseTareaSchema):
+    rfc: str 
+    razon_social: str 
+    estado: EstadoAsignacionEnum
+    completado: bool
+    creado: datetime
+class TareaGetClientSchema(BaseTareaSchema):
+    username: Optional[str] = Field(None)
+    estado: EstadoAsignacionEnum
+    completado: bool
+    creado: datetime
+    
+class TareaGetAllSchema(BaseTareaSchema):
+    rfc: str 
+    razon_social: str 
+    username: Optional[str] = Field(None)
+    estado: EstadoAsignacionEnum
+    completado: bool
+    creado: datetime
+    ultimo_cambio: datetime
+    
 class UpdateTareaSchema(BaseSchema):
     tarea: str
+    descripcion: str
+    departamento: DepartamentoEnum
     recurrencia: RecurrenciaEnum
-    usuario_id: str
+    complejidad: int
+    enviar: bool
+    pagar: bool
+    tipo: TipoTareaEnum
+    username: str
+    
     
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
                     "tarea": "Nombre tarea",
+                    "descripcion": "Ejemplo de tarea",
+                    "departamento": DepartamentoEnum.Contabilidad,
                     "recurrencia": RecurrenciaEnum.Mensual,
-                    "usuario_id": "id de usuario",
+                    "complejidad": 1,
+                    "enviar": True,
+                    "pagar": False,
+                    "tipo": TipoTareaEnum.Recurrente,
+                    "username": "default"
                 }
             ]
         }
     }
     
 
-
-
 class TareaResponse(BaseTareaSchema):
     username: str
     completado: bool
-    created_at: datetime = datetime.now()
+    estado: EstadoAsignacionEnum
+    creado: datetime
+    ultimo_cambio: datetime

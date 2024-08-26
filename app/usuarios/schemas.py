@@ -11,8 +11,10 @@ from app.usuarios.enums import *
 class BaseUserSchema(BaseSchema):
     id: str = Field(default_factory=lambda: str(uuid4()))
     username: str
+    nombres: str
+    apellidos: str
     posicion: str
-    user_type: UserTypeEnum
+    tipo_usuario: UserTypeEnum
 
     @classmethod
     def validate_password(cls, password: str) -> None:
@@ -20,10 +22,12 @@ class BaseUserSchema(BaseSchema):
 
 
 class UserSchema(BaseUserSchema):
-    avatar: str
     username: str
+    nombres: str
+    apellidos: str
     posicion: str
-    user_type: UserTypeEnum
+    tipo_usuario: UserTypeEnum
+    avatar: str
 
 
 class LoginUserSchema(BaseUserSchema):
@@ -31,7 +35,6 @@ class LoginUserSchema(BaseUserSchema):
 
 
 class UpdateOwnUserSchema(BaseSchema):
-    avatar: Optional[str] = Field(None)
     old_password: Optional[str] = Field(None)
     new_password: Optional[str] = Field(None)
     confirm_new_password: Optional[str] = Field(None)
@@ -59,7 +62,6 @@ class UpdateOwnUserSchema(BaseSchema):
         if not cls._valid_password(data['new_password']):
             raise ValueError('Password does not match to pattern')
 
-        print(data)
         return data
 
     model_config = {
@@ -76,12 +78,14 @@ class UpdateOwnUserSchema(BaseSchema):
 
 
 class UpdateUserSchema(BaseSchema):
+    username: str
+    nombres: str
+    apellidos: str
+    posicion: str
+    avatar: str
+    tipo_usuario: Optional[UserTypeEnum] = Field(None)
     new_password: Optional[str] = Field(None)
     confirm_new_password: Optional[str] = Field(None)
-    user_type: Optional[UserTypeEnum] = Field(None)
-    avatar: str
-    username: str
-    posicion: str
 
     @classmethod
     def _valid_password(cls, password: str) -> None:
@@ -104,12 +108,14 @@ class UpdateUserSchema(BaseSchema):
         "json_schema_extra": {
             "examples": [
                 {
-                    "username": "Angel Fernandez",
-                    'new_password': 'Fo12345',
-                    'confirm_new_password': 'Fo12345',
+                    "username": "angelFernandez",
+                    "nombres": "Angel",
+                    "apellidos": "Fernandez",
                     'posicion': 'Auxiliar contable',
-                    'user_type': UserTypeEnum.Colaborador,
                     "avatar": "",
+                    'tipo_usuario': UserTypeEnum.Colaborador,
+                    'new_password': 'Fo12345$',
+                    'confirm_new_password': 'Fo12345$',
                 }
             ]
         }
@@ -117,11 +123,14 @@ class UpdateUserSchema(BaseSchema):
 
 
 class CreateUserSchema(BaseUserSchema):
+    username: str
+    nombres: str
+    apellidos: str
+    posicion: str
+    tipo_usuario: UserTypeEnum
+    avatar: str = ''
     password: str
     confirm_password: str = Field(...)
-    posicion: str
-    user_type: UserTypeEnum = UserTypeEnum.Colaborador
-    avatar: str = ''
 
     @classmethod
     @model_validator(mode='before')
@@ -132,7 +141,7 @@ class CreateUserSchema(BaseUserSchema):
         if not cls.validate_password(data['password']):
             raise ValueError('Password does not match to pattern')
 
-        if data["user_type"] == UserTypeEnum.SupeAdmin:
+        if data["tipo_usuario"] == UserTypeEnum.SupeAdmin:
             raise ValueError("User type could not be Admin")
 
         return data
@@ -141,12 +150,14 @@ class CreateUserSchema(BaseUserSchema):
         "json_schema_extra": {
             "examples": [
                 {
-                    "username": "Angel Fernandez",
+                    "username": "angelFernandez",
+                    "nombres": "Angel",
+                    "apellidos": "Fernandez",
+                    'posicion': 'Auxiliar contable',
+                    'tipo_usuario': UserTypeEnum.Colaborador,
+                    "avatar": "",
                     'password': 'Fo12345',
                     'confirm_password': 'Fo12345',
-                    'posicion': 'Auxiliar contable',
-                    'user_type': UserTypeEnum.Colaborador,
-                    "avatar": "",
                 }
             ]
         }

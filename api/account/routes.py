@@ -12,12 +12,12 @@ account_router = APIRouter()
 
 
 @account_router.get('/get')
-async def get_current(current_session=Depends(Manager)) -> UserSchema:
+async def get_current_account(current_session=Depends(Manager)) -> UserSchema:
     return UserSchema.model_validate(current_session)
 
 
 @account_router.put('/update')
-async def update(user_data: UpdateOwnUserSchema,
+async def update_account(user_data: UpdateOwnUserSchema,
                  current_session=Depends(Manager),
                  db: Session = Depends(create_session)) -> UserSchema:
 
@@ -32,11 +32,11 @@ async def update(user_data: UpdateOwnUserSchema,
 
 
 @account_router.get('/delete')
-async def delete(current_session=Depends(Manager),
+async def delete_account(current_session=Depends(Manager),
                  db: Session = Depends(create_session)) -> UserSchema:
 
-    user_id = current_session.get('id')
+    username = current_session.get('username')
     await UserCRUD.delete(db=db,
-                          user_id=user_id)
+                          username=username)
 
     return current_session

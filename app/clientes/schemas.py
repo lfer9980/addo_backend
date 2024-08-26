@@ -63,6 +63,9 @@ class BaseClienteSchema(BaseSchema):
 class ClienteSchema(BaseClienteSchema):
     ...
 
+class ClienteById(BaseSchema):
+    razon_social: str
+    rfc: str
 
 class CreateClienteSchema(BaseClienteSchema):
     model_config = {

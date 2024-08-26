@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship
-from sqlalchemy import (Column, String, Enum, Integer, ForeignKey, DateTime, Boolean)
+from sqlalchemy import (Column, String, Enum, Integer)
 
 from app.clientes.enums import *
 from core.db import BaseTable
@@ -9,15 +9,15 @@ class ClienteModel(BaseTable):
 
     __tablename__ = 'clientes'
     
+    rfc = Column(String,
+                unique=True,
+                nullable=False
+                )
+    
     razon_social = Column(String,
                     unique=True,
                     nullable=False
                     )
-    
-    rfc = Column(String,
-                 unique=True,
-                 nullable=False
-                 )
     
     persona = Column(Enum(PersonaEnum),
                 nullable=False
@@ -63,13 +63,4 @@ class ClienteModel(BaseTable):
     complejidad = Column(Integer,
                    nullable=False)
     
-    """
-    tareas = relationship("TareaModel",
-                          back_populates="cliente",
-                          ) 
-    """
-
-
-
-
-
+    tareas = relationship("TareaModel", back_populates="cliente")

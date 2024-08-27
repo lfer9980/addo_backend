@@ -8,13 +8,15 @@ from app.models.tareas_estandar import TareaEstandarModel
 
 
 class TareaEstandarCRUD(BaseCRUD):
+    
+    current_table = TareaEstandarModel
 
     @classmethod
     async def create(cls, db: Session, tarea: CreateTareaEstandarSchema) -> TareaEstandarSchema:
 
         tarea_data = tarea.model_dump()
 
-        db_tarea = TareaEstandarModel(**tarea_data)
+        db_tarea = cls.current_table(**tarea_data)
 
         await cls._save(db=db,
                         data=db_tarea)
@@ -26,25 +28,23 @@ class TareaEstandarCRUD(BaseCRUD):
                      tarea_id: str,
                      tarea: UpdateTareaEstandarSchema) -> TareaEstandarSchema:
 
-        old_tarea: Query = await cls._filter_by(db=db,
-                                                table=TareaEstandarModel,
-                                                key='id',
-                                                data=tarea_id)
-
-        old_tarea: TareaEstandarModel | None = old_tarea.first()
+        old_tarea: Query = await cls._get_one(db=db,
+                                              table=cls.current_table,
+                                              this_id=tarea_id,
+                                              )
         if old_tarea is None:
             raise HTTPException(
                 status_code=404,
-                detail=f"Tarea estandar update failed: {tarea_id}"
+                detail=f"Tarea estandar no encontrada: {tarea_id}"
             )
 
         new_tarea = tarea.model_dump()
+        
         for key, value in new_tarea.items():
             if value is not None:
                 setattr(old_tarea, key, value)
 
-        await cls._update(db=db,
-                          data=old_tarea)
+        await cls._update(db=db, data=old_tarea)
 
         return TareaEstandarSchema.model_validate(old_tarea)
 
@@ -52,7 +52,7 @@ class TareaEstandarCRUD(BaseCRUD):
     async def delete(cls, db: Session, tarea_id: str) -> None:
 
         tarea: Query = await cls._filter_by(db=db,
-                                            table=TareaEstandarModel,
+                                            table=cls.current_table,
                                             key='id',
                                             data=tarea_id)
         tarea = tarea.first()
@@ -60,17 +60,19 @@ class TareaEstandarCRUD(BaseCRUD):
         if tarea is None:
             raise HTTPException(
                 status_code=404,
-                detail=f"Tarea estandar not found: {tarea_id}"
+                detail=f"Tarea estandar no encontrada: {tarea_id}"
             )
 
         await cls._delete(db=db,
                           data=tarea)
 
     @classmethod
-    async def get_all(cls, db: Session, page: int = 1, page_size: int = 10) -> List[TareaEstandarSchema]:
+    async def get_all(cls, db: Session, 
+                      page: int = 1, 
+                      page_size: int = 10) -> List[TareaEstandarSchema]:
 
         tareas_estandar = await cls._get_all(db=db,
-                                            table=TareaEstandarModel,
+                                            table=cls.current_table,
                                             page=page, 
                                             page_size=page_size)
 
@@ -80,7 +82,7 @@ class TareaEstandarCRUD(BaseCRUD):
     async def get_one(cls, db: Session, tarea_id: str) -> TareaEstandarSchema:
 
         tarea_estandar = await cls._get_one(db=db,
-                                            table=TareaEstandarModel,
+                                            table=cls.current_table,
                                             this_id=tarea_id)
 
         return TareaEstandarSchema.model_validate(tarea_estandar)

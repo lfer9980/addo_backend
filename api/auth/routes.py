@@ -35,10 +35,9 @@ async def login(request: OAuth2PasswordRequestForm = Depends()):
     date_creation = datetime.now(timezone)
     expiration_time = date_creation + access_token_expires
     
-    access_token = Manager.create_access_token(
-        data=dict(sub=username),
-        expires=access_token_expires
-    )
+    access_token = Manager.create_access_token(data=dict(sub=username),
+                                               expires=access_token_expires
+                                               )
 
     return {
         'access_token': access_token,

@@ -23,6 +23,10 @@ class AsignacionModel(BaseTable):
 
     terminado = Column(DateTime)
     
+    tarea_id = Column(String, ForeignKey("tareas.id"))
+    
+    username = Column(String, ForeignKey("usuarios.username"))
+    
     tarea = relationship("TareaModel", back_populates="asignacion")
     
     usuario = relationship("UsuarioModel", back_populates="asignaciones", uselist=False)

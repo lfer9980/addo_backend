@@ -58,15 +58,15 @@ class CreateTareaEstandarSchema(BaseTareaEstandarSchema):
     }
 
 
-class UpdateTareaEstandarSchema(BaseTareaEstandarSchema):
-    tarea: Optional[str] = Field(None)
-    descripcion: Optional[str] = Field(None)
-    departamento: Optional[DepartamentoEnum] = Field(None)
-    recurrencia: Optional[RecurrenciaEnum] = Field(None)
-    complejidad: Optional[int] = Field(None)
-    enviar: Optional[bool] = Field(None)
-    pagar: Optional[bool] = Field(None)
-    tipo: Optional[TipoTareaEnum] = Field(None)
+class UpdateTareaEstandarSchema(BaseSchema):
+    tarea: str
+    descripcion: str
+    departamento: DepartamentoEnum
+    recurrencia: RecurrenciaEnum
+    complejidad: int
+    enviar: bool
+    pagar: bool
+    tipo: TipoTareaEnum
 
     model_config = {
         "json_schema_extra": {

@@ -39,8 +39,6 @@ class TareaModel(BaseTable):
     
     cliente_rfc = Column(String, ForeignKey("clientes.rfc"))
     
-    asignacion_id = Column(String, ForeignKey("asignaciones.id"))
-    
-    cliente = relationship("ClienteModel", back_populates="tareas")
+    cliente = relationship("ClienteModel", back_populates="tareas", uselist=False)
     
     asignacion = relationship("AsignacionModel", back_populates="tarea", uselist=False)

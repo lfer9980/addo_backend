@@ -22,7 +22,7 @@ async def create_user(user: CreateUserSchema,
 
     CreateUserSchema.model_validate(user)
 
-    return await UserCRUD().create(user=user, db=db)
+    return await UserCRUD.create(user=user, db=db)
 
 
 @user_router.put('/update/{username}')
@@ -32,16 +32,15 @@ async def update_user(username: str,
                       current_session: Depends = Depends(Manager),
                       db: Session = Depends(create_session)):
 
-    user_session_username: str = current_session.get('username')
+    user_username: str = current_session.get('username')
 
     UpdateUserSchema.model_validate(user_data)
 
-    return await UserCRUD().update_user(
-        db=db,
-        user_update_username=username,
-        user_updating_username=user_session_username,
-        user=user_data
-    )
+    return await UserCRUD.update_user(db=db,
+                                      user_update_username=username,
+                                      user_updating_username=user_username,
+                                      user=user_data
+                                      )
 
 
 @user_router.delete('/delete/{username}')
@@ -50,10 +49,7 @@ async def delete_user(username: str,
                       current_session: Depends = Depends(Manager),
                       db: Session = Depends(create_session)):
 
-    await UserCRUD().delete(
-        db=db,
-        username=username
-    )
+    await UserCRUD.delete(db=db, username=username)
 
     return {"message": f"Usuario {username} eliminado correctamente"}
 
@@ -64,7 +60,7 @@ async def get_all_users(page: int,
                   db: Session = Depends(create_session),
                   current_session: Depends = Depends(Manager)) -> List[UserSchema]:
 
-    return await UserCRUD().get_all(db=db,
+    return await UserCRUD.get_all(db=db,
                                     page=page,
                                     page_size=50)
 
@@ -75,5 +71,5 @@ async def get_user_by_username(username: str,
                    db: Session = Depends(create_session),
                    current_session: Depends = Depends(Manager)) -> UserSchema:
 
-    return await UserCRUD().get_one(db=db,
-                                    username=username)
+    return await UserCRUD.get_one(db=db,
+                                  username=username)

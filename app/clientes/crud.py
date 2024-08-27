@@ -43,7 +43,9 @@ class ClienteCRUD(BaseCRUD):
         return ClienteSchema.model_validate(db_cliente)
 
     @classmethod
-    async def update(cls, db: Session, cliente_update_rfc: str, cliente: UpdateClienteSchema) -> ClienteSchema:
+    async def update(cls, db: Session, 
+                     cliente_update_rfc: str,
+                     cliente: UpdateClienteSchema) -> ClienteSchema:
         
         old_cliente: Query = await cls._filter_by(db=db,
                                                   table=ClienteModel,
@@ -84,17 +86,21 @@ class ClienteCRUD(BaseCRUD):
         await cls._delete(db, cliente)
 
     @classmethod
-    async def get_all(cls, db: Session, page: int = 1, page_size: int = 10) -> List[ClienteSchema]:
+    async def get_all(cls, db: Session, 
+                      page: int = 1, 
+                      page_size: int = 10) -> List[ClienteSchema]:
 
         clientes = await cls._get_all(db=db,
                                       page=page,
                                       page_size=page_size,
-                                      table=ClienteModel, )
+                                      table=ClienteModel
+                                      )
 
         return [ClienteSchema.model_validate(cliente) for cliente in clientes]
 
     @classmethod
     async def get_one(cls, db: Session, rfc: str) -> ClienteSchema:
+      
         cliente: Query = await cls._filter_by(db=db,
                                               table=ClienteModel,
                                               key='rfc',

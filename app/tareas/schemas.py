@@ -49,11 +49,12 @@ class CreateTareaSchema(BaseTareaSchema):
     username: str
 
 class TareaGetUserSchema(BaseTareaSchema):
-    rfc: str 
-    razon_social: str 
+    cliente_rfc: str 
+    razon_social: str
     estado: EstadoAsignacionEnum
     completado: bool
     creado: datetime
+    
 class TareaGetClientSchema(BaseTareaSchema):
     username: Optional[str] = Field(None)
     estado: EstadoAsignacionEnum
@@ -61,13 +62,12 @@ class TareaGetClientSchema(BaseTareaSchema):
     creado: datetime
     
 class TareaGetAllSchema(BaseTareaSchema):
-    rfc: str 
-    razon_social: str 
+    cliente_rfc: str 
+    razon_social: str
     username: Optional[str] = Field(None)
     estado: EstadoAsignacionEnum
     completado: bool
     creado: datetime
-    ultimo_cambio: datetime
     
 class UpdateTareaSchema(BaseSchema):
     tarea: str

@@ -208,18 +208,4 @@ class AsignacionCRUD(BaseCRUD):
         return [AsignacionBase.model_validate(asignacion) for asignacion in asignaciones]
 
 
-    @classmethod
-    async def get_all_by_key(cls, db: Session, key: str, data: str, page: int = 1, page_size: int = 10) -> List[AsignacionBase]:
-        
-        asignaciones = await cls._get_all_by_id(db=db,
-                                                  table=cls.current_table,
-                                                  key=key,
-                                                  value=data,
-                                                  page=page,
-                                                  page_size=page_size)
-        
-        
-        return [AsignacionBase.model_validate(asignacion) for asignacion in asignaciones]
-        
-
         

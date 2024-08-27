@@ -20,8 +20,8 @@ async def update_asignacion(tarea_id: str,
                             current_session: Depends = Depends(Manager)):
 
     return await AsignacionCRUD.update_asignacion(db=db,
-                                              tarea_id=tarea_id,
-                                              nuevo_usuario_username=nuevo_usuario_username)
+                                                  tarea_id=tarea_id,
+                                                  nuevo_usuario_username=nuevo_usuario_username)
     
     
 @asignaciones_router.put('/estado/{tarea_id}')

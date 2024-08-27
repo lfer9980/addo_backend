@@ -31,8 +31,11 @@ async def create_tarea(rfc: str,
 
     CreateTareaSchema.model_validate(tarea_dict)
 
-    return await TareasCRUD.create(db=db, data=tarea, rfc=rfc.upper(), username=usuario_asignado)
-
+    return await TareasCRUD.create(db=db,
+                                   data=tarea,
+                                   rfc=rfc.upper(), 
+                                   username=usuario_asignado
+                                   )
 
 @tareas_router.put('/update/{tarea_id}')
 @can_access(not_allowed=[UserTypeEnum.Colaborador])
@@ -42,7 +45,6 @@ async def update_tarea(tarea_id: str,
                        current_session: Depends = Depends(Manager)):
     
     tarea_dict = tarea.model_dump()
-    print()
 
     usuario_asignado: str | None = tarea_dict.get('username', None)
 
@@ -52,16 +54,20 @@ async def update_tarea(tarea_id: str,
             detail='usuario asignado requerido en el campo...'
         )
 
-    return await TareasCRUD.update(db=db, data=tarea, tarea_id=tarea_id, username=usuario_asignado)
-
+    return await TareasCRUD.update(db=db, 
+                                   data=tarea, 
+                                   tarea_id=tarea_id, 
+                                   username=usuario_asignado
+                                   )
 
 @tareas_router.delete('/delete/{tarea_id}')
 @can_access(not_allowed=[UserTypeEnum.Colaborador])
 async def delete_tarea(tarea_id: str,
-                         db: Session = Depends(create_session),
-                         current_session: Depends = Depends(Manager)):
+                       db: Session = Depends(create_session),
+                       current_session: Depends = Depends(Manager)):
 
     await TareasCRUD.delete(db=db, tarea_id=tarea_id)
+    
     return {'message': f'Tarea {tarea_id} eliminada correctamente'}
 
 
@@ -72,7 +78,6 @@ async def get_all_tareas(page: int = 1,
                          current_session: Depends = Depends(Manager)):
     
     return await TareasCRUD.get_all(db=db, page=page)
-
 
 @tareas_router.get('/get/user/{username}')
 @can_access(not_allowed=[UserTypeEnum.Colaborador])
@@ -85,14 +90,11 @@ async def get_tarea_by_user(username: str,
                                         page=page,
                                         username=username)
 
-
 @tareas_router.get('/get/client/{rfc}')
 @can_access(not_allowed=[UserTypeEnum.Colaborador])
 async def get_tarea_by_client(rfc: str,
-                              page: int = 1,
                               db: Session = Depends(create_session),
                               current_session: Depends = Depends(Manager)):
     
     return await TareasCRUD.get_by_client(db=db,
-                                          page=page,
                                           rfc=rfc)

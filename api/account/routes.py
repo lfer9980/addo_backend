@@ -11,32 +11,31 @@ from core.utils.token import Manager
 account_router = APIRouter()
 
 
-@account_router.get('/get')
-async def get_current_account(current_session=Depends(Manager)) -> UserSchema:
-    return UserSchema.model_validate(current_session)
-
-
 @account_router.put('/update')
-async def update_account(user_data: UpdateOwnUserSchema,
+async def update_current_account(user_data: UpdateOwnUserSchema,
                  current_session=Depends(Manager),
                  db: Session = Depends(create_session)) -> UserSchema:
 
     user_id = current_session.get('id')
+    
     UpdateOwnUserSchema.model_validate(user_data)
 
-    return await UserCRUD.update_me(
-        db=db,
-        user_id=user_id,
-        user=user_data
-    )
+    return await UserCRUD.update_me(db=db,
+                                    user_id=user_id,
+                                    user=user_data
+                                    )
 
-
-@account_router.get('/delete')
-async def delete_account(current_session=Depends(Manager),
+@account_router.delete('/delete')
+async def delete_current_account(current_session=Depends(Manager),
                  db: Session = Depends(create_session)) -> UserSchema:
 
     username = current_session.get('username')
+    
     await UserCRUD.delete(db=db,
                           username=username)
 
     return current_session
+
+@account_router.get('/get')
+async def get_current_account(current_session=Depends(Manager)) -> UserSchema:
+    return UserSchema.model_validate(current_session)

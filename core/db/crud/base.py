@@ -93,24 +93,9 @@ class BaseCRUD:
         data = result.scalars().all()
 
         return data
-    
-    @staticmethod
-    async def _get_by_relationship(cls, db: Session, table, key: str, data: str, page: int = 1, page_size: int = 10):
-
-        data: Query = await cls._filter_by(db=db,
-                                           table=table,
-                                           key=key,
-                                           data=data)
-
-        data = data.first()
-        if data is None:
-            raise HTTPException(status_code=404,
-                                detail="No existen registros")
-
-        return data
 
     @staticmethod
-    async def _get_all_by_id(db: Session, table, key: str, value: str, page: int = 1, page_size: int = 10):
+    async def _get_all_by_key(db: Session, table, key: str, value: str, page: int = 1, page_size: int = 10):
 
         offset = (page - 1) * page_size
         

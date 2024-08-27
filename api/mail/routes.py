@@ -9,17 +9,24 @@ mail_router = APIRouter()
 
 
 @mail_router.post('/send')
-async def send_mail(content: EmailSchema = Depends(),
+async def send_mail(background_tasks: BackgroundTasks,
+                    email_data: EmailSchema = Depends(),
                     file: UploadFile = File(None),
                     current_session: Depends = Depends(Manager)):
-    content = content.model_dump()
+    
+    attachment_list = []
+    
+    if file: 
+        attachment_list.append(file)
+        
 
     message = MessageSchema(
-        subject=content.get('asunto'),
-        recipients=[content.get('email')],
-        body=content.get('texto'),
-        subtype=MessageType.plain,
-        attachments=[file],
+        recipients = [email_data.email],
+        subject = email_data.subject,
+        body = email_data.body,
+        token = email_data.subject,
+        attachments = attachment_list,
+        subtype="html"
     )
 
     fm = FastMail(MAIL_CONFIG)

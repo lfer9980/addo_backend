@@ -42,8 +42,6 @@ class UsuarioModel(BaseTable):
                     default=datetime.now(pytz.timezone('Etc/GMT+6')),
                         )
 
-    asignacion_id = Column(String, ForeignKey("asignaciones.id"))
-
     asignaciones = relationship("AsignacionModel", back_populates="usuario")
 
     puntaje = relationship("PuntajeModel", back_populates="usuario")

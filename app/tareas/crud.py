@@ -11,6 +11,7 @@ from app.asignaciones.enums import *
 
 from app.models import ClienteModel, UsuarioModel
 from app.models.tareas import TareaModel
+from app.models.asignacion import AsignacionModel
 from app.asignaciones.crud import AsignacionCRUD
 from app.clientes.crud import ClienteCRUD
 
@@ -42,7 +43,9 @@ class TareasCRUD(BaseCRUD):
             getattr(UsuarioModel, 'username') == username
         )
         
-        usuario_exists = True if usuario_query.first() is not None else False
+        usuario = usuario_query.first()
+        
+        usuario_exists = True if usuario is not None else False
         usuario_super = True if username == "superuser" else False
     
         if not usuario_exists:
@@ -56,6 +59,8 @@ class TareasCRUD(BaseCRUD):
                 status_code=404,
                 detail='No es posible asignar tareas al super usuario...',
             )
+        
+        return usuario
         
             
 
@@ -124,11 +129,10 @@ class TareasCRUD(BaseCRUD):
 
         await cls._update(db=db, data=old_tarea)
 
-        await AsignacionCRUD.update_asignacion(
-            db=db,
-            tarea_id=tarea_id,
-            nuevo_usuario_username=user
-        )
+        await AsignacionCRUD.update_asignacion(db=db,
+                                               tarea_id=tarea_id,
+                                               nuevo_usuario_username=user,
+                                               )
 
         return TareaSchema.model_validate(old_tarea)
 
@@ -149,74 +153,42 @@ class TareasCRUD(BaseCRUD):
         tareas = await cls._get_all(db=db,
                                     table=cls.current_table,
                                     page=page,
-                                    page_size=page_size)        
-
-        asignaciones = await AsignacionCRUD.get_all(db=db,
-                                                    page=page,
-                                                    page_size=page_size)
+                                    page_size=page_size)      
         
-
-
-        tareas_list = [tarea.to_dict() for tarea in tareas]
-        asignaciones_dict = {asignacion.model_dump()["tarea_id"]: asignacion.model_dump() for asignacion in asignaciones}
-
-        tareas_asignaciones = []
+        tareas_list = [{**tarea.to_dict(), 
+                        **tarea.asignacion.to_dict(),
+                        "id": tarea.to_dict()["id"],
+                        "razon_social": tarea.cliente.to_dict()["razon_social"]} 
+                       for tarea in tareas]
         
-        for item in tareas_list:
-            cliente_data = await ClienteCRUD.get_one_by_id(db=db,
-                                                           cliente_id=item.get("cliente_id"))
-            
-            cliente_data = cliente_data.model_dump()
-            
-            if item["id"] in asignaciones_dict:
-                merged_item = {**item, **asignaciones_dict[item["id"]], **cliente_data}
-                
-            else:
-                 merged_item = {**item, **cliente_data}
-            
-            tareas_asignaciones.append(merged_item)
-
-        return [TareaGetAllSchema.model_validate(tarea) for tarea in tareas_asignaciones]
+        return [TareaGetAllSchema.model_validate(tarea) for tarea in tareas_list]
 
     @classmethod
     async def get_by_user(cls, db: Session, username: str, page: int = 1, page_size: int = 10) -> List[TareaGetUserSchema]:
         
-        await cls._validate_usuario(db, username=username)
+        usuario = await cls._validate_usuario(db, username=username)
         
-        asignaciones = await AsignacionCRUD.get_all_by_key(db=db, 
-                                                           key="username",
-                                                           data=username,
-                                                           page=page,
-                                                           page_size=page_size)
+        tareas_list = [{**asignacion.to_dict(), 
+                        **asignacion.tarea.to_dict(),
+                        "id": asignacion.tarea.to_dict()["id"],
+                        "razon_social": asignacion.tarea.cliente.to_dict()["razon_social"]} 
+                       for asignacion in usuario.asignaciones]
         
-        asignaciones_list = [asignacion.model_dump() for asignacion in asignaciones]
+        return [TareaGetUserSchema.model_validate(tarea) for tarea in tareas_list]
 
-        tareas_asignaciones = []
-        
-        for item in asignaciones_list:
-            tarea_data = await cls._get_one(db=db,
-                                table=cls.current_table,
-                                this_id=item.get("tarea_id"))
-            
-            tarea_data = tarea_data.to_dict()
-            
-            cliente_data = await ClienteCRUD.get_one_by_id(db=db,
-                                                           cliente_id=tarea_data.get("cliente_id"))
-            
-            cliente_data = cliente_data.model_dump()
-            
-            merged_item = {**item, **tarea_data, **cliente_data}
-            tareas_asignaciones.append(merged_item)
-        
-        return [TareaGetUserSchema.model_validate(tarea) for tarea in tareas_asignaciones]
-    
     @classmethod
-    async def get_by_client(cls, db: Session, rfc: str, page: int = 1, page_size: int = 10):
+    async def get_by_client(cls, db: Session, rfc: str) -> List[TareaGetClientSchema]:
         
-        cliente = await cls._validate_cliente(db=db,
-                                              rfc=rfc)
+        cliente = await cls._validate_cliente(db=db, rfc=rfc)
+        
+        tareas_list = [{**tarea.to_dict(), 
+                        **tarea.asignacion.to_dict(),
+                        "id": tarea.to_dict()["id"],} 
+                       for tarea in cliente.tareas]
+        
+        return [TareaGetClientSchema.model_validate(tarea) for tarea in tareas_list]
     
-        return cliente.tareas
+    
         
         
         

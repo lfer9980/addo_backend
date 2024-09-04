@@ -79,7 +79,6 @@ class AsignacionCRUD(BaseCRUD):
                                                  data=tarea_id)
 
         this_tarea = this_tarea.first()
-        print(this_tarea)
 
         if not this_tarea:
             raise HTTPException(

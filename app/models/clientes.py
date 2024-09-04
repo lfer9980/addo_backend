@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship
-from sqlalchemy import (Column, String, Enum, Integer)
+from sqlalchemy import (Column, String, Enum, Integer, Float)
 
 from app.clientes.enums import *
 from core.db import BaseTable
@@ -62,5 +62,10 @@ class ClienteModel(BaseTable):
     
     complejidad = Column(Integer,
                    nullable=False)
+    
+    tcve = Column(Float,
+                  nullable=False,
+                  default=0
+                  )
     
     tareas = relationship("TareaModel", back_populates="cliente")

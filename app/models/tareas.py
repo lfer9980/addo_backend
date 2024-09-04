@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship
-from sqlalchemy import (Column, String, Enum, Boolean, SmallInteger, ForeignKey)
+from sqlalchemy import (Column, String, Enum, Boolean, SmallInteger, ForeignKey, Float)
 
 from app.tareas.enums import *
 from core.db import BaseTable
@@ -36,6 +36,11 @@ class TareaModel(BaseTable):
     
     tipo = Column(Enum(TipoTareaEnum),
                   nullable=False)
+    
+    carga_trabajo = Column(Float,
+                           nullable=False,
+                           default=0,
+                           )
     
     cliente_rfc = Column(String, ForeignKey("clientes.rfc"))
     

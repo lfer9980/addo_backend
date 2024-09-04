@@ -61,7 +61,7 @@ class BaseClienteSchema(BaseSchema):
 
 
 class ClienteSchema(BaseClienteSchema):
-    ...
+    tcve: float
 
 class ClienteById(BaseSchema):
     razon_social: str

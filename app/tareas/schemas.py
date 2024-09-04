@@ -43,6 +43,7 @@ class BaseTareaSchema(BaseSchema):
 
 class TareaSchema(BaseTareaSchema):
     cliente_rfc: str
+    carga_trabajo: float
 
 class CreateTareaSchema(BaseTareaSchema):
     id: str = Field(default_factory=lambda: str(uuid4()))
@@ -54,12 +55,14 @@ class TareaGetUserSchema(BaseTareaSchema):
     estado: EstadoAsignacionEnum
     completado: bool
     creado: datetime
+    carga_trabajo: float
     
 class TareaGetClientSchema(BaseTareaSchema):
     username: Optional[str] = Field(None)
     estado: EstadoAsignacionEnum
     completado: bool
     creado: datetime
+    carga_trabajo: float
     
 class TareaGetAllSchema(BaseTareaSchema):
     cliente_rfc: str 
@@ -68,6 +71,7 @@ class TareaGetAllSchema(BaseTareaSchema):
     estado: EstadoAsignacionEnum
     completado: bool
     creado: datetime
+    carga_trabajo: float
     
 class UpdateTareaSchema(BaseSchema):
     tarea: str
